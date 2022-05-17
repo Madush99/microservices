@@ -1,24 +1,95 @@
-name: Docker Build Deploy
+name: Build pipeline
+
 on:
   push:
-    branches: [master]
+    branches: [ master ]
+  workflow_dispatch:
+
+# env:
+#   DOCKER_USER_RUSIRU: ${{secrets.DOCKER_USER_RUSIRU}}
+#   DOCKER_PASSWORD_RUSIRU: ${{secrets.DOCKER_PASSWORD_RUSIRU}}
+#   ORDER_REPO_NAME_RUSIRU: ${{secrets.ORDER_REPO_NAME_RUSIRU}}
+#   EMAIL_REPO_NAME_RUSIRU: ${{secrets.EMAIL_REPO_NAME_RUSIRU}}
+#   DOCKER_USER_SENURA: ${{secrets.DOCKER_USER_SENURA}}
+#   DOCKER_PASSWORD_SENURA: ${{secrets.DOCKER_PASSWORD_SENURA}}
+#   CART_REPO_NAME_SENURA: ${{secrets.CART_REPO_NAME_SENURA}}
+#   PRODUCT_REPO_NAME_SENURA: ${{secrets.PRODUCT_REPO_NAME_SENURA}}
+#   DOCKER_USER_LASAL: ${{secrets.DOCKER_USER_LASAL}}
+#   DOCKER_PASSWORD_LASAL: ${{secrets.DOCKER_PASSWORD_LASAL}}
+#   AUTH_REPO_NAME_LASAL: ${{secrets.AUTH_REPO_NAME_LASAL}}
+#   USER_REPO_NAME_LASAL: ${{secrets.USER_REPO_NAME_LASAL}}
+#   DOCKER_USER_DILMI: ${{secrets.DOCKER_USER_DILMI}}
+#   DOCKER_PASSWORD_DILMI: ${{secrets.DOCKER_PASSWORD_DILMI}}
+#   DELIVERY_REPO_NAME_DILMI: ${{secrets.DELIVERY_REPO_NAME_DILMI}}
+#   PAYMENT_REPO_NAME_DILMI: ${{secrets.PAYMENT_REPO_NAME_DILMI}}
+
 jobs:
-  build:
+  product-service:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: run shell script
-      run: echo commit hash is ${{ github.sha }}
-    - name: Login to Docker Hub
-      uses: docker/login-action@v1
+    - uses: actions/checkout@v2
+    - name: Docker login
+      run: | 
+        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+    - name: Build order service docker image
+      run: |
+        cd src/ProductService
+        docker build . --file Dockerfile --tag productrepo.azurecr.io/customerservice:v1
+    - name: Push order service docker image
+      run: docker push productrepo.azurecr.io/customerservice:v1
+  
+  order-service:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Docker login
+      run: |
+        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+    - name: Build email service docker image
+      run: |
+        cd src/OdersService
+        docker build . --file Dockerfile --tag productrepo.azurecr.io/orderservice:v1
+    - name: Push email service docker image
+      run: docker push productrepo.azurecr.io/orderservice:v1
+
+  delivery-service:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Docker login
+      run: | 
+        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+    - name: Build user service docker image
+      run: |
+        cd src/DeliveryService
+        docker build . --file Dockerfile --tag productrepo.azurecr.io/deliveryservice:v1
+    - name: Push user service docker image
+      run: docker push productrepo.azurecr.io/deliveryservice:v1
+  
+  customer-service:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Docker login
+      run: | 
+        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+    - name: Build auth service docker image
+      run: |
+        cd src/CustomerService
+        docker build . --file Dockerfile --tag productrepo.azurecr.io/customerservice:v1
+    - name: Push auth service docker image
+      run: docker push productrepo.azurecr.io/customerservice:v1
+  
+  deploy:
+    needs: [product-service, order-service, delivery-service, customer-service]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: 🛠 Configure Kubernetes Credentials
+      uses: Azure/aks-set-context@v1
       with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-    - name: Build and push
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        file: ./Dockerfile
-        push: true
-        tags: productrepo.azurecr.io/productservice:v1
-        args: apply -f ./k8s
+        creds: '${{ secrets.AZURE_CREDENTIALS }}'
+        cluster-name: productcluster
+        resource-group: productgroup
+    - name: ⬆️ Deploy to K8s
+      run: kubectl apply -f ./k8s
