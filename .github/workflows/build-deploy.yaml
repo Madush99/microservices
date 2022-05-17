@@ -14,16 +14,11 @@ jobs:
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-   - name: Build payment service docker image
-      run: |
-        cd ProductService 
-        docker build . --file Dockerfile --tag productrepo.azurecr.io/productservice:v1 
-    - name: Push cart service docker image
-      run: docker push roductrepo.azurecr.io/productservice:v1
-      # with:
-      #   context: .
-      #   file: ./Dockerfile
-      #   push: true
-      #   tags: productrepo.azurecr.io/productservice:v1
-    - name: deploy
-      run: apply -f ./k8s
+    - name: Build and push
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        file: ./ProductService/Dockerfile
+        push: true
+        tags: productrepo.azurecr.io/productservice:v1
+        args: apply -f ./k8s
