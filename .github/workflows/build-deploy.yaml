@@ -21,5 +21,4 @@ jobs:
         file: ./ProductService/Dockerfile
         push: true
         tags: productrepo.azurecr.io/productservice:v1
-      with:
         args: apply -f ./k8s
