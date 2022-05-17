@@ -5,24 +5,6 @@ on:
     branches: [ master ]
   workflow_dispatch:
 
-# env:
-#   DOCKER_USER_RUSIRU: ${{secrets.DOCKER_USER_RUSIRU}}
-#   DOCKER_PASSWORD_RUSIRU: ${{secrets.DOCKER_PASSWORD_RUSIRU}}
-#   ORDER_REPO_NAME_RUSIRU: ${{secrets.ORDER_REPO_NAME_RUSIRU}}
-#   EMAIL_REPO_NAME_RUSIRU: ${{secrets.EMAIL_REPO_NAME_RUSIRU}}
-#   DOCKER_USER_SENURA: ${{secrets.DOCKER_USER_SENURA}}
-#   DOCKER_PASSWORD_SENURA: ${{secrets.DOCKER_PASSWORD_SENURA}}
-#   CART_REPO_NAME_SENURA: ${{secrets.CART_REPO_NAME_SENURA}}
-#   PRODUCT_REPO_NAME_SENURA: ${{secrets.PRODUCT_REPO_NAME_SENURA}}
-#   DOCKER_USER_LASAL: ${{secrets.DOCKER_USER_LASAL}}
-#   DOCKER_PASSWORD_LASAL: ${{secrets.DOCKER_PASSWORD_LASAL}}
-#   AUTH_REPO_NAME_LASAL: ${{secrets.AUTH_REPO_NAME_LASAL}}
-#   USER_REPO_NAME_LASAL: ${{secrets.USER_REPO_NAME_LASAL}}
-#   DOCKER_USER_DILMI: ${{secrets.DOCKER_USER_DILMI}}
-#   DOCKER_PASSWORD_DILMI: ${{secrets.DOCKER_PASSWORD_DILMI}}
-#   DELIVERY_REPO_NAME_DILMI: ${{secrets.DELIVERY_REPO_NAME_DILMI}}
-#   PAYMENT_REPO_NAME_DILMI: ${{secrets.PAYMENT_REPO_NAME_DILMI}}
-
 jobs:
   product-service:
     runs-on: ubuntu-latest
@@ -33,7 +15,7 @@ jobs:
         docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
     - name: Build order service docker image
       run: |
-        cd /ProductService
+        cd /productservice
         docker build . --file Dockerfile --tag productrepo.azurecr.io/customerservice:v1
     - name: Push order service docker image
       run: docker push productrepo.azurecr.io/customerservice:v1
@@ -47,7 +29,7 @@ jobs:
         docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
     - name: Build email service docker image
       run: |
-        cd /OdersService
+        cd /oderservice
         docker build . --file Dockerfile --tag productrepo.azurecr.io/orderservice:v1
     - name: Push email service docker image
       run: docker push productrepo.azurecr.io/orderservice:v1
