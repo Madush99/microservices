@@ -33,7 +33,7 @@ jobs:
         docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
     - name: Build order service docker image
       run: |
-        cd ./ProductService
+        cd /ProductService
         docker build . --file Dockerfile --tag productrepo.azurecr.io/customerservice:v1
     - name: Push order service docker image
       run: docker push productrepo.azurecr.io/customerservice:v1
@@ -47,7 +47,7 @@ jobs:
         docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
     - name: Build email service docker image
       run: |
-        cd ./OdersService
+        cd /OdersService
         docker build . --file Dockerfile --tag productrepo.azurecr.io/orderservice:v1
     - name: Push email service docker image
       run: docker push productrepo.azurecr.io/orderservice:v1
@@ -61,7 +61,7 @@ jobs:
         docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
     - name: Build user service docker image
       run: |
-        cd ./DeliveryService
+        cd /DeliveryService
         docker build . --file Dockerfile --tag productrepo.azurecr.io/deliveryservice:v1
     - name: Push user service docker image
       run: docker push productrepo.azurecr.io/deliveryservice:v1
@@ -75,7 +75,7 @@ jobs:
         docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
     - name: Build auth service docker image
       run: |
-        cd ./CustomerService
+        cd /CustomerService
         docker build . --file Dockerfile --tag productrepo.azurecr.io/customerservice:v1
     - name: Push auth service docker image
       run: docker push productrepo.azurecr.io/customerservice:v1
