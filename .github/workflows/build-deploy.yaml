@@ -18,7 +18,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: .
-        file: ./ProductService/Dockerfile
+        file: ../ProductService/Dockerfile
         push: true
         tags: productrepo.azurecr.io/productservice:v1
         args: apply -f ./k8s
